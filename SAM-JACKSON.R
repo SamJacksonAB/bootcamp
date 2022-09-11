@@ -216,3 +216,4 @@ points(x = jitter(rep(1:6, each = 12), amount = .1),
 # Create a github repository called 'bootcamp'
 # Create an html R Markdown document with answer to question 9
 # Push R Markdown file, html file and other related files to the repository
+# html link to repository: https://github.com/SamJacksonAB/bootcamp
