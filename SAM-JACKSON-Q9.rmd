@@ -1,0 +1,72 @@
+---
+title: "SAM-JACKSON-Q9"
+author: "Sam Jackson"
+date: "2022-09-11"
+output: html_document
+---
+
+```{r Question-9, include = TRUE}
+# Perform 1-way ANOVA to evaluate the overall effect of insect spray type
+# (spray) on the number of insects counted (count)
+data("InsectSprays")
+help("InsectSprays")
+head(InsectSprays)
+```
+
+```{r check-assumptions, include = TRUE}
+# Check for assumption of Gaussian residuals
+# Create model object
+m1 <- aov(formula = count ~ spray, data = InsectSprays)
+# Create histogram and qqplot of residuals
+par(mfrow = c(1, 2))
+hist(rstandard(m1))
+library(car)
+qqPlot(x = m1)
+par(mfrow = c(1, 1))
+# Seems a little out on the qqplot
+# Complete a Shapiro Wilk test
+shapiro.test(rstandard(m1))
+# There is evidence of difference to Guassian in our residuals for our
+# ANOVA model (Shapiro-Wilk: W = 0.96, n = 72, P = 0.022)
+
+# Check for assumption of homoscedasticity
+plot(formula = rstandard(m1) ~ fitted(m1),
+     ylab = "m1: residuals",
+     xlab = "m1: fitted values")
+abline(h = 0, lty = 2, lwd = 3, col = "red")
+# Add points for mean residuals
+y1 <- aggregate(rstandard(m1), by = list(InsectSprays$spray), FUN = mean)[,2]
+x1 <- unique(round(fitted(m1),6))
+points(x = x1, y = y1,
+       pch = 19, col = "blue")
+# Carry out bartlett test
+bartlett.test(formula = count ~ spray, data = InsectSprays)
+# There is evidence that variance in count differs between sprays
+# (Bartlett test: K-squared = 25.96, df = 5, P < 0.0001)
+
+# As the assumptions of Gaussian residuals, homoscedasticity and eqaulity of
+# variance are violated, ANOVA cannot be used
+```
+
+```{r alternative-non-parametric-test, include = TRUE}
+# Carry out Kruskal-Wallis non-parametric test as alternative
+kruskal.test(formula = count ~ spray, data = InsectSprays)
+# We found evidence of a difference in count for different sprays
+# (Kruskal-Wallis: chi-squared = 54.69, df = 5, p < 0.0001)
+```
+
+```{r boxplot-of-data, include = TRUE}
+# Create a boxplot of the data
+boxplot(count ~ spray, data = InsectSprays,
+        ylab = "Number of insects",
+        xlab = "Spray",
+        main = "Effect of spray on number of insects",
+        cex = 0)
+# Add a line showing grand mean
+abline(h = mean(InsectSprays$count),
+       lty = 2, lwd = 2, col = "red")
+# Add raw data
+points(x = jitter(rep(1:6, each = 12), amount = .1),
+       y = InsectSprays$count,
+       pch = 16, cex = .8, col = "blue")
+```
